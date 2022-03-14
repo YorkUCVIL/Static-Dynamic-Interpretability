@@ -43,6 +43,17 @@ a:hover{
 	border-bottom-width: 2px;
 }
 
+
+.project_video{
+	margin-bottom: 0.2em;
+	border-bottom-style: solid;
+	border-bottom-color: rgb(220,220,220);
+	border-bottom-width: 2px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 .project_material_wrapper{
 	display: inline-block;
 	width:100%;
