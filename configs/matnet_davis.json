@@ -1,0 +1,19 @@
+{
+    "original_data_root": "/local/riemann/home/msiam/DAVIS/",
+    "stylized_data_root": "/local/riemann/home/msiam/Stylized_DAVIS/",
+    "split": "val",
+    "nreps": 5,
+    "random_seed": 1,
+    "model": "matnet",
+    "gpu_id": "0",
+    "crop_size": [480, 854],
+    "variant": "img_flow",
+    "sampling_method": "noisy_flow",
+    "num_classes": 2,
+    "output_stride": 8,
+    "fuse_early": false,
+    "pretrain_motionstream": false,
+    "trained_on": "davis",
+    "fuse_bnorm": false,
+    "extra_args": {"fusion_type": "gated"}
+}
