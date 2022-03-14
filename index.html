@@ -2,20 +2,19 @@
 <html lang='en'>
 	<head>
 		<meta charset='utf-8'>
-		<title>Wavelet Flow</title>
+		<title>Static vs. Dynamic</title>
 		<link rel='icon' href='/~jjyu/favicon.png'>
 		<link rel='stylesheet' href='project_page.css' type='text/css'>
 		<meta name='viewport' content='width=device-width, initial-scale=1'>
 	</head>
 
 	<body>
-		<h1 class='project_title'>Wavelet Flow: Fast Training of High Resolution Normalizing Flows</h1>
+		<h1 class='project_title'>A Deeper Dive Into What Deep Spatiotemporal Networks Encode: Quantifying Static vs. Dynamic Information</h1>
 		<div class='project_date'>Sept. 25, 2020</div>
 		<img src='img/project_graphic.svg'>
 
 		<h2 class='project_section'>Abstract</h2>
-		Normalizing flows are a class of probabilistic generative models which allow for both fast density computation and efficient sampling and are effective at modelling complex distributions like images.  A drawback among current methods is their significant training cost, sometimes requiring months of GPU training time toachieve state-of-the-art results. This paper introduces <i>Wavelet Flow</i>, a multi-scale, normalizing flow architecture based on wavelets. A Wavelet Flow has an explicit representation of signal scale that inherently includes models of lower resolution signals and conditional generation of higher resolution signals, <i>i.e.</i>, super resolution. A major advantage of Wavelet Flow is the ability to construct generative models for high resolution data (<i>e.g.</i>, 1024×1024 images) that are impractical with previous models.  Furthermore, Wavelet Flow is competitive with previous normalizing flows in terms of bits per dimension on standard (low resolution) benchmarks while being up to 15× faster to train.
-
+		Deep spatiotemporal models are used in a variety of computer vision tasks, such as action recognition and video object segmentation. Currently, there is a limited understanding of what information is captured by these models in their intermediate representations. For example, while it has been observed that action recognition algorithms are heavily influenced by visual appearance in single static frames, there is no quantitative methodology for evaluating such static bias in the latent representation compared to bias toward dynamic information (\eg motion). We tackle this challenge by proposing a novel approach for quantifying the static and dynamic biases of any spatiotemporal model. To show the efficacy of our approach, we analyse two widely studied tasks, action recognition and video object segmentation. Our key findings are threefold: (i) Most examined spatiotemporal models are biased toward static information; although, certain two-stream architectures with cross-connections show a better balance between the static and dynamic information captured. (ii) Some datasets that are commonly assumed to be biased toward dynamics are actually biased toward static information. (iii) Individual units (channels) in an architecture can be biased toward static, dynamic or a combination of the two.
 		<h2 class='project_section'>Authors</h2>
 		<div class='project_author_wrapper'>
 			<a class='project_author' href='https://jasonjyu.com/'>
@@ -48,7 +47,7 @@
 				<p>Slides</p>
 			</a>
 			-->
-			<a class='project_material' href='https://github.com/YorkUCVIL/Wavelet-Flow/'>
+			<a class='project_material' href='https://github.com/YorkUCVIL/Static-Dynamic-Interpretability/'>
 				<img style='margin: 14.6% 0;' src='icons/github.svg'>
 				<p>Code</p>
 			</a>
@@ -56,11 +55,11 @@
 
 		<h2 class='project_section'>Citation</h2>
 		<div class="cite_bib">
-			@inproceedings{jjyu2020waveletflow,<br>
-				&ensp;&ensp;&ensp; author = {Jason J. Yu and Konstantinos G. Derpanis and Marcus A. Brubaker},<br>
-				&ensp;&ensp;&ensp; title = {{Wavelet Flow}: Fast Training of High Resolution Normalizing Flows},<br>
-				&ensp;&ensp;&ensp; booktitle = {NeurIPS},<br>
-				&ensp;&ensp;&ensp; year = {2020}<br>
+			@inproceedings{kowal2022deeper,<br>
+				&ensp;&ensp;&ensp; author = {Kowal, Matthew and Siam, Mennatullah and Islam, Md Amirul and Bruce, Neil and Wildes, Richard P. and Derpanis, Konstantinos G.},<br>
+				&ensp;&ensp;&ensp; title = {A Deeper Dive Into What Deep Spatiotemporal Networks Encode: Quantifying Static vs. Dynamic Information},<br>
+				&ensp;&ensp;&ensp; booktitle = {Conference on Computer Vision and Pattern Recognition},<br>
+				&ensp;&ensp;&ensp; year = {2022}<br>
 			}
 		</div>
 
