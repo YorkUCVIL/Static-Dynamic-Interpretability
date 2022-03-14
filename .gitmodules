@@ -1,0 +1,6 @@
+[submodule "models/vos_models/segment-any-moving"]
+	path = models/vos_models/segment-any-moving
+	url = git@github.com:MSiam/segment-any-moving.git
+[submodule "models/vos_models/flownet2"]
+	path = models/vos_models/flownet2
+	url = git@github.com:lmb-freiburg/flownet2.git
