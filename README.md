@@ -11,12 +11,12 @@ We tackle this challenge by proposing a novel approach for quantifying the stati
 Our key findings are threefold: (i) Most examined spatiotemporal models are biased toward static information; although, certain two-stream architectures with cross-connections show a better balance between the static and dynamic information captured. (ii) Some datasets that are commonly assumed to be biased toward dynamics are actually biased toward static information. (iii) Individual units (channels) in an architecture can be biased toward static, dynamic or a combination of the two.
 
 <div align="center">
-<img src="https://github.com/YorkUCVIL/Static-Dynamic-Interpretability/tree/master/figures/teaser.png" width="50%" height="50%"><br><br>
+<img src="https://github.com/YorkUCVIL/Static-Dynamic-Interpretability/blob/master/figures/teaser.png" width="50%" height="50%"><br><br>
 </div>
 
 
 <div align="center">
-<img src="https://github.com/YorkUCVIL/Static-Dynamic-Interpretability/tree/master/figures/static_dynamic.png" width="100%" height="100%"><br><br>
+<img src="https://github.com/YorkUCVIL/Static-Dynamic-Interpretability/blob/master/figures/static_dynamic.png" width="100%" height="100%"><br><br>
 </div>
 
 ## Installation
@@ -47,6 +47,7 @@ to stylize our videos. We simply run ```generate.py``` with the provided four [p
 For each dataset of interest, we generate four stylized versions of the validation set 
 with the following data structure:
 
+```
 stylized_dataset
  |-- style_1 
  |   |-- video_1
@@ -63,6 +64,7 @@ stylized_dataset
  |      .
  |      .
  |      .
+```
 
 then set config.stylized_data_dir to point to the root directory.
 
