@@ -107,7 +107,7 @@ def main():
     print(" >>> Estimated factor dimensionalities: {}".format(dims))
     print(" >>> Ratio to total dimensions: {}".format(dims_percent))
 
-    print('Saving results to {}'.format(args.save_dir + args.model + '_dim_est.csv'))
+    print('Saving results to {}'.format(args.save_dir + '/' + args.model + '_dim_est.csv'))
     # save to output folder
     with open(args.save_dir + '/' + args.model + '_dim_est.csv', mode='w') as file1:
         writer = csv.writer(file1, delimiter=',')
