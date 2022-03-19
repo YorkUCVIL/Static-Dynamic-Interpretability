@@ -16,7 +16,6 @@ from torchvision.transforms._transforms_video import (
     CenterCropVideo,
     NormalizeVideo,
 )
-from models.ar_models.CNNs_3d.transforms.spatial_transforms import *
 from models.ar_models.pytorchvideo.pytorchvideo.transforms.transforms import (
     ApplyTransformToKey,
     ShortSideScale,
@@ -31,8 +30,13 @@ def get_ssv2_data(args, data_root):
     for vid in full_path_list:
         video_list_5k.append(vid.split('/')[-1])
     data = []
-    val_json_file = json.load(os.path.join(args.stylized_data_dir,'something-something-v2-validation.json'))
-    label_json_file = json.load(os.path.join(args.stylized_data_dir,'something-something-v2-labels.json'))
+
+    val_path = os.path.join(args.stylized_data_dir,'something-something-v2-validation.json')
+    with open(val_path) as f:
+        val_json_file = json.load(f)
+    label_path = os.path.join(args.stylized_data_dir,'something-something-v2-labels.json')
+    with open(label_path) as f:
+        label_json_file = json.load(f)
 
     # prepare class dictionary with lists
     data_by_class = {}
@@ -54,8 +58,6 @@ def get_ssv2_data(args, data_root):
 
             if num_frames < min_num_frames:
                 min_num_frames = num_frames
-    print('Shortest video is {} frames!'.format(min_num_frames))
-    print('Validating with {} videos!'.format(len(data)))
     return data, data_by_class
 
 
@@ -170,6 +172,7 @@ class SSV2(data.Dataset):
         self.num_textures = len(self.styles)
         self.app_shuffle = config.app_shuffle
         self.prng = np.random.RandomState(1)
+        self.n_factors = config.n_factors - 2
         self.transform, self.transform_fast, self.clip_duration = get_data_transforms(config=config)
 
     def get_video_as_tensor(self, data_dict, style, app_normal=False, start_frame=None):
@@ -240,7 +243,6 @@ class SSV2(data.Dataset):
                 video2, _ = self.get_video_as_tensor(data2, style2, start_frame=start_frame)
         else:
             # same appearance, different motion
-            # remove current action
             if self.app_shuffle:
                 pass
             else:

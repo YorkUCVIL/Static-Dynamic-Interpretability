@@ -7,7 +7,7 @@ def load_args():
     parser.add_argument('--save_dir', default='dim_outputs', help="dataset to use for dim estimation")
     parser.add_argument('--random_seed', type=int, default=1)
     parser.add_argument('--stylized_data_dir',
-                        default='/media/ssd1/m3kowal/Stylized_ActivityNet',
+                        default='/local/data1/mkowal/data/stylized_datasets/val_stylized_Diving48',
                         help="Path to stylized dataset directory and json files")
     parser.add_argument('--cfg_file', default='configs/twostreamv3plus_davis.json')
 
@@ -19,7 +19,7 @@ def load_args():
     parser.add_argument('--m_same', default=True, help="Use same video for motion pair")
 
     # model
-    parser.add_argument('--model', default='i3d', help="model to do dimension estimation on")
+    parser.add_argument('--model', default='slow_r50_8x8', help="model to do dimension estimation on")
     parser.add_argument('--stg', default=None, help="stage of network to analyze")
     parser.add_argument('--path', default='fast', help="Slowfast path to use (cat | slow | fast)")
     parser.add_argument('--fuse', default=True, help="Slowfast to fuse before returning midlayer")
@@ -53,7 +53,11 @@ def load_args():
 
     # computing
     parser.add_argument('--device', default=0, type=int, help="gpu id")
-    parser.add_argument('--num_workers', default=0, type=int, help="number of CPU threads")
+    parser.add_argument('--num_workers', default=4, type=int, help="number of CPU threads")
 
     args = parser.parse_args()
     return args
+
+
+# CUDA_VISIBLE_DEVICES=0 python main.py --model slow_r50_8x8 --checkpoint /local/data1/mkowal/projects/dim_estimation/models/ar_models/checkpoints/slowonly_8x8_2gpu_run2/checkpoints/checkpoint_epoch_00100.pyth --stylized_data_dir /local/data1/mkowal/data/stylized_datasets/val_stylized_Diving48 --dataset Diving48
+# CUDA_VISIBLE_DEVICES=1 python main.py --model fast --checkpoint /local/data1/mkowal/projects/dim_estimation/models/ar_models/checkpoints/fastonly_ssv2_4gpu_run1/checkpoints/checkpoint_epoch_00040.pyth --stylized_data_dir /local/data1/mkowal/data/stylized_datasets/stylized_ssv2 --dataset ssv2

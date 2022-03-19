@@ -16,7 +16,6 @@ from torchvision.transforms._transforms_video import (
     NormalizeVideo,
 )
 
-from models.ar_models.CNNs_3d.transforms.spatial_transforms import *
 from models.ar_models.pytorchvideo.pytorchvideo.transforms.transforms import (
     ApplyTransformToKey,
     ShortSideScale,
@@ -203,6 +202,7 @@ class StylizedActivityNet(data.Dataset):
         self.data, self.data_by_class = get_stylized_activitynet_data(config)
         self.num_textures = len(self.styles)
         self.app_shuffle = config.app_shuffle
+        self.n_factors = config.n_factors-2
         self.prng = np.random.RandomState(1)
         self.transform, self.transform_fast, self.clip_duration = get_data_transforms(config=config)
 

@@ -26,15 +26,23 @@ import pickle
 import csv
 
 def get_model(args):
+    if args.dataset == 'Diving48':
+        num_classes = 48
+    elif args.dataset == 'ssv2':
+        num_classes = 174
+    elif args.dataset == 'StylizedActivityNet':
+        num_classes = 400 # kinetics trained models
     if args.model == 'c2d':
         model_args = parse_args()
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/C2D_8x8_R50_IN1K.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -44,10 +52,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/c2/I3D_8x8_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -57,10 +67,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/c2/I3D_NLN_8x8_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -70,11 +82,13 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/c2/SLOW_8x8_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
         args.num_frames = cfg.DATA.NUM_FRAMES
@@ -83,10 +97,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/SSv2/pytorchvideo/SLOW_8x8_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -96,10 +112,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/c2/SLOWFAST_8x8_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         # fast params
@@ -114,10 +132,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/SSv2/pytorchvideo/SLOWFAST_8x8_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         # fast params
@@ -132,10 +152,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/c2/SLOW_4x16_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -145,10 +167,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/c2/SLOWFAST_4x16_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         # fast params
@@ -163,10 +187,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/SSv2/SLOWFAST_16x8_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         # fast params
@@ -181,10 +207,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/SSv2/SLOWFAST_16x8_R50_multigrid.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         # fast params
@@ -199,10 +227,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/X3D_XS.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -215,10 +245,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/X3D_S.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -231,10 +263,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/X3D_M.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -247,10 +281,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/X3D_L.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -263,10 +299,12 @@ def get_model(args):
         model_args.cfg_file = 'models/ar_models/MVIT_SlowFast/configs/Kinetics/MVIT_B_16x4_CONV.yaml'
         cfg = mvit_load_config(model_args)
         cfg = mvit_assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = mvit_build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         mvit_cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -303,10 +341,12 @@ def get_model(args):
             model_args.cfg_file = 'models/ar_models/SlowFast/configs/Kinetics/FAST_8x8_R50.yaml'
         cfg = load_config(model_args)
         cfg = assert_and_infer_cfg(cfg)
+        cfg.MODEL.NUM_CLASSES = num_classes
         model = build_model(cfg)
         if len(args.checkpoint) > 0:
             cfg.TRAIN.CHECKPOINT_FILE_PATH = args.checkpoint
             cfg.TEST.CHECKPOINT_FILE_PATH = args.checkpoint
+            cfg.TEST.CHECKPOINT_TYPE = 'pytorch'
             cfg.TRAIN.CHECKPOINT_TYPE = 'pytorch'
         cu.load_test_checkpoint(cfg, model)
         args.sampling_rate = cfg.DATA.SAMPLING_RATE
@@ -319,7 +359,7 @@ def get_dataloader(args):
     if args.dataset == 'ssv2':
         dataset = SSV2(args)
     if args.dataset == 'Diving48':
-        dataset = SSV2(args)
+        dataset = Diving48(args)
 
     dataloader = DataLoader(dataset, args.batch_size, shuffle=False, num_workers=args.num_workers, pin_memory=True)
     return dataloader
@@ -447,14 +487,6 @@ def dim_est(output_dict, factor_list, args, return_idv_scores=False):
                 pickle.dump(joint_dims, f)
             with open('dim_outputs/vos_models/joint_encoding/%s/raw_%s.pkl'%(args.model, args.stg), 'wb') as f:
                 pickle.dump(idv_scores, f)
-    elif args.stat_tables:
-        with open('dim_outputs/vos_models/stats_tables_newformat/%s_%s_%d_%d.csv'%(args.model, \
-                            str(args.stg), args.random_seed, idv_scores.shape[0]), 'w') as f:
-            csvwriter = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for i in range(idv_scores.shape[1]):
-                score = idv_scores[:, i]
-                new_score = [score[3], score[0], score[1], score[2]]
-                csvwriter.writerow([i] + list(new_score))
 
     # SOFTMAX
     softmaxed = softmax_fn(scores, use_max=True)

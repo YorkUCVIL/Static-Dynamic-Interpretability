@@ -1,0 +1,85 @@
+TRAIN:
+  ENABLE: True
+  DATASET: ssv2
+  BATCH_SIZE: 1
+  EVAL_PERIOD: 2
+  CHECKPOINT_PERIOD: 1
+  AUTO_RESUME: True
+#  CHECKPOINT_FILE_PATH: checkpoints/DO_slow_ssv2_bl_steplr_run4/checkpoint_epoch_00018.pyth
+#  CHECKPOINT_TYPE: pytorch
+#  CHECKPOINT_FILE_PATH: checkpoints/model_zoo_pretrained/SSV2_SLOW_8x8_R50.pyth
+#  CHECKPOINT_TYPE: pytorch
+  CHECKPOINT_FILE_PATH: checkpoints/model_zoo_pretrained/SLOWONLY_8x8_R50.pkl
+  CHECKPOINT_TYPE: caffe2
+  ONLY_EVAL: False
+  SHUFFLE_ONLY: False
+DATA:
+  NUM_FRAMES: 8
+  SAMPLING_RATE: 8
+  TRAIN_JITTER_SCALES: [256, 320]
+  TRAIN_CROP_SIZE: 224
+  TEST_CROP_SIZE: 256
+  INPUT_CHANNEL_NUM: [3]
+  RANDOM_FLIP: True
+  PATH_TO_DATA_DIR: /home/matthew/Desktop/Datasets/ssv2/
+  REVERSE_INPUT_CHANNEL: True
+RESNET:
+  ZERO_INIT_FINAL_BN: True
+  WIDTH_PER_GROUP: 64
+  NUM_GROUPS: 1
+  DEPTH: 50
+  TRANS_FUNC: bottleneck_transform
+  STRIDE_1X1: False
+  NUM_BLOCK_TEMP_KERNEL: [[3], [4], [6], [3]]
+NONLOCAL:
+  LOCATION: [[[]], [[]], [[]], [[]]]
+  GROUP: [[1], [1], [1], [1]]
+  INSTANTIATION: dot_product
+BN:
+  USE_PRECISE_STATS: False
+  NUM_BATCHES_PRECISE: 200
+SOLVER:
+#  BASE_LR: 0.001
+#  LR_POLICY: steps_with_relative_lrs
+#  LRS: [1,0.1,0.01,0.001]
+#  STEPS: [0,15,25]
+#  MAX_EPOCH: 30
+#  MOMENTUM: 0.9
+#  WEIGHT_DECAY: 1e-4
+#  OPTIMIZING_METHOD: sgd
+  BASE_LR_SCALE_NUM_SHARDS: True
+  BASE_LR: 0.1
+  LR_POLICY: cosine
+  MAX_EPOCH: 30
+  MOMENTUM: 0.9
+  WEIGHT_DECAY: 1e-4
+  WARMUP_EPOCHS: 3.0
+  WARMUP_START_LR: 0.08
+  OPTIMIZING_METHOD: sgd
+MODEL:
+  NUM_CLASSES: 174
+  ARCH: slow
+  MODEL_NAME: ResNet
+  LOSS_FUNC: cross_entropy
+  DROPOUT_RATE: 0.0
+TEST:
+  ENABLE: False
+  DATASET: ssv2
+  BATCH_SIZE: 16
+  NUM_ENSEMBLE_VIEWS: 1
+  NUM_SPATIAL_CROPS: 1
+#  CHECKPOINT_FILE_PATH: checkpoints/model_zoo_pretrained/SSV2_SLOW_8x8_R50.pyth
+DATA_LOADER:
+  NUM_WORKERS: 2
+  PIN_MEMORY: True
+#INFO_DROPOUT:
+#  DROPOUT: True
+#  FACTOR: 'static'
+#  DIMS_MOD: 20
+#  LAYER: 5
+#  DROP_RATIO: 0.1
+NUM_GPUS: 1
+NUM_SHARDS: 1
+RNG_SEED: 0
+OUTPUT_DIR: checkpoints/debug4_slow_ssv2
+LOG_MODEL_INFO: False

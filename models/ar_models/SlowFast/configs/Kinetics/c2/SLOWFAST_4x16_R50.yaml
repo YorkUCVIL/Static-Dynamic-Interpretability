@@ -56,7 +56,7 @@ TEST:
   DATASET: kinetics
   BATCH_SIZE: 64
   CHECKPOINT_TYPE: caffe2
-  CHECKPOINT_FILE_PATH: models/SlowFast/slowfast/models/checkpoints/SLOWFAST_4x16_R50.pkl
+  CHECKPOINT_FILE_PATH: models/ar_models/checkpoints/SLOWFAST_4x16_R50.pkl
 DATA_LOADER:
   NUM_WORKERS: 8
   PIN_MEMORY: True

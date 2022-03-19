@@ -6,7 +6,7 @@
 import torch
 import torch.nn as nn
 #from models.SlowFast.detectron2.detectron2.layers import ROIAlign
-from detectron2.layers import ROIAlign
+# from detectron2.layers import ROIAlign
 
 
 class ResNetRoIHead(nn.Module):
@@ -147,6 +147,7 @@ class ResNetBasicHead(nn.Module):
         pool_size,
         dropout_rate=0.0,
         act_func="softmax",
+        fast_only=False
     ):
         """
         The `__init__` method of any subclass should also contain these
@@ -171,13 +172,17 @@ class ResNetBasicHead(nn.Module):
             len({len(pool_size), len(dim_in)}) == 1
         ), "pathway dimensions are not consistent."
         self.num_pathways = len(pool_size)
+        self.fast_only = fast_only
 
         for pathway in range(self.num_pathways):
             if pool_size[pathway] is None:
                 avg_pool = nn.AdaptiveAvgPool3d((1, 1, 1))
             else:
                 avg_pool = nn.AvgPool3d(pool_size[pathway], stride=1)
-            self.add_module("pathway{}_avgpool".format(pathway), avg_pool)
+            if fast_only:
+                self.add_module("pathway{}_avgpool".format(pathway + 1), avg_pool)
+            else:
+                self.add_module("pathway{}_avgpool".format(pathway), avg_pool)
 
         if dropout_rate > 0.0:
             self.dropout = nn.Dropout(dropout_rate)
@@ -202,7 +207,10 @@ class ResNetBasicHead(nn.Module):
         ), "Input tensor does not contain {} pathway".format(self.num_pathways)
         pool_out = []
         for pathway in range(self.num_pathways):
-            m = getattr(self, "pathway{}_avgpool".format(pathway))
+            if self.fast_only:
+                m = getattr(self, "pathway{}_avgpool".format(pathway + 1))
+            else:
+                m = getattr(self, "pathway{}_avgpool".format(pathway))
             pool_out.append(m(inputs[pathway]))
         x = torch.cat(pool_out, 1)
         # (N, C, T, H, W) -> (N, T, H, W, C).

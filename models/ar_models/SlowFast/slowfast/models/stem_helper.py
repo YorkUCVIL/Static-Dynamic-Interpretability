@@ -35,6 +35,7 @@ class VideoModelStem(nn.Module):
         bn_mmt=0.1,
         norm_module=nn.BatchNorm3d,
         stem_func_name="basic_stem",
+        fast_only=False
     ):
         """
         The `__init__` method of any subclass should also contain these
@@ -85,10 +86,11 @@ class VideoModelStem(nn.Module):
         self.inplace_relu = inplace_relu
         self.eps = eps
         self.bn_mmt = bn_mmt
+        self.fast_only = fast_only
         # Construct the stem layer.
-        self._construct_stem(dim_in, dim_out, norm_module, stem_func_name)
+        self._construct_stem(dim_in, dim_out, norm_module, stem_func_name, fast_only)
 
-    def _construct_stem(self, dim_in, dim_out, norm_module, stem_func_name):
+    def _construct_stem(self, dim_in, dim_out, norm_module, stem_func_name, fast_only=False):
         trans_func = get_stem_func(stem_func_name)
 
         for pathway in range(len(dim_in)):
@@ -103,6 +105,8 @@ class VideoModelStem(nn.Module):
                 self.bn_mmt,
                 norm_module,
             )
+            if fast_only:
+                pathway += 1
             self.add_module("pathway{}_stem".format(pathway), stem)
 
     def forward(self, x):
@@ -110,7 +114,10 @@ class VideoModelStem(nn.Module):
             len(x) == self.num_pathways
         ), "Input tensor does not contain {} pathway".format(self.num_pathways)
         for pathway in range(len(x)):
-            m = getattr(self, "pathway{}_stem".format(pathway))
+            if self.fast_only:
+                m = getattr(self, "pathway{}_stem".format(pathway + 1))
+            else:
+                m = getattr(self, "pathway{}_stem".format(pathway))
             # x = m(x)
             x[pathway] = m(x[pathway])
             # x[pathway].shape = 3*8*256*256

@@ -34,7 +34,6 @@ def main():
     if args.stg:
         args.stg = int(args.stg)
         print(' > Stage: ', args.stg)
-    print(' > Pretrained: ', args.pretrained)
     print(' > Dataset: ', args.dataset)
 
     if 'slowfast' in args.model:
@@ -94,6 +93,7 @@ def main():
 
         if i == n_iter:
             break
+
 
     # dimentionality estimmation
     print(' > Finished processing examples...')

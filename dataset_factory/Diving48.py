@@ -16,14 +16,6 @@ from torchvision.transforms._transforms_video import (
     CenterCropVideo,
     NormalizeVideo,
 )
-# from models.CNNs_3d.transforms_old.spatial_transforms import *
-# from models.CNNs_3d.transforms_old.temporal_transforms import *
-
-from models.ar_models.CNNs_3d.transforms.spatial_transforms import *
-# from models.CNNs_3d.transforms.temporal_transforms import *
-
-# sys.path.append('/mnt/zeta_share_1/public_share/dim_est_mk/dim_estimation/models')
-# from models.pytorchvideo.data.encoded_video import EncodedVideo
 from models.ar_models.pytorchvideo.pytorchvideo.transforms.transforms import (
     ApplyTransformToKey,
     ShortSideScale,
@@ -32,7 +24,7 @@ from models.ar_models.pytorchvideo.pytorchvideo.transforms.transforms import (
 
 def get_diving48_data(args):
     # get a list of videos that were stylized
-    label_path = os.path.join(stylized_data_dir, 'Diving48_V2_test.json')
+    label_path = os.path.join(args.stylized_data_dir, 'Diving48_V2_test.json')
     with open(label_path) as f:
         data = json.load(f)
 
@@ -158,6 +150,7 @@ class Diving48(data.Dataset):
         self.data, self.data_by_class = get_diving48_data(config)
         self.num_textures = len(self.styles)
         self.app_shuffle = config.app_shuffle
+        self.n_factors = config.n_factors-2
         self.prng = np.random.RandomState(1)
         self.transform, self.transform_fast, self.clip_duration = get_data_transforms(config=config)
 

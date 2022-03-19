@@ -15,7 +15,7 @@ TEST:
   ENABLE: True
   DATASET: kinetics
   BATCH_SIZE: 64
-  CHECKPOINT_FILE_PATH: 'models/SlowFast/slowfast/models/checkpoints/x3d_m.pyth' # 76.21% top1 30-view accuracy to download from the model zoo (optional).
+  CHECKPOINT_FILE_PATH: 'models/ar_models/checkpoints/x3d_m.pyth' # 76.21% top1 30-view accuracy to download from the model zoo (optional).
   NUM_SPATIAL_CROPS: 1
 #  NUM_SPATIAL_CROPS: 3
 DATA:

@@ -1,12 +1,14 @@
 TRAIN:
-  ENABLE: False
-  DATASET: kinetics
-  BATCH_SIZE: 64
-  EVAL_PERIOD: 10
+  ENABLE: True
+  DATASET: ssv2
+  BATCH_SIZE: 1
+  EVAL_PERIOD: 5
   CHECKPOINT_PERIOD: 1
   AUTO_RESUME: True
-  # CHECKPOINT_FILE_PATH: path to the model to test
-  CHECKPOINT_TYPE: caffe2
+#  CHECKPOINT_FILE_PATH: checkpoints/model_zoo_pretrained/SLOWFAST_8x8_R50.pkl
+#  CHECKPOINT_TYPE: caffe2
+  CHECKPOINT_FILE_PATH: models/ar_models/checkpoints/fastonly_ssv2_4gpu_run1/checkpoints/checkpoint_epoch_00040.pyth
+  CHECKPOINT_TYPE: pytorch
 DATA:
   NUM_FRAMES: 32
   SAMPLING_RATE: 2
@@ -14,6 +16,7 @@ DATA:
   TRAIN_CROP_SIZE: 224
   TEST_CROP_SIZE: 256
   INPUT_CHANNEL_NUM: [3, 3]
+  PATH_TO_DATA_DIR: /home/matthew/Desktop/Datasets/ssv2/
 SLOWFAST:
   ALPHA: 4
   BETA_INV: 8
@@ -34,33 +37,40 @@ NONLOCAL:
   GROUP: [[1, 1], [1, 1], [1, 1], [1, 1]]
   INSTANTIATION: dot_product
 BN:
-  USE_PRECISE_STATS: True
+  USE_PRECISE_STATS: False
   NUM_BATCHES_PRECISE: 200
 SOLVER:
-  BASE_LR: 0.1
-  LR_POLICY: cosine
-  MAX_EPOCH: 196
+  BASE_LR: 0.03
+  LR_POLICY: steps_with_relative_lrs
+  LRS: [ 1, 0.1, 0.01, 0.001]
+  STEPS: [ 0, 15, 30, 35]
+  MAX_EPOCH: 40
   MOMENTUM: 0.9
   WEIGHT_DECAY: 1e-4
-  WARMUP_EPOCHS: 34.0
-  WARMUP_START_LR: 0.01
   OPTIMIZING_METHOD: sgd
+#  BASE_LR: 0.1
+#  LR_POLICY: cosine
+#  MAX_EPOCH: 196
+#  MOMENTUM: 0.9
+#  WEIGHT_DECAY: 1e-4
+#  WARMUP_EPOCHS: 34.0
+#  WARMUP_START_LR: 0.01
+#  OPTIMIZING_METHOD: sgd
 MODEL:
-  NUM_CLASSES: 400
+  NUM_CLASSES: 174
   ARCH: slowfast
-  MODEL_NAME: SlowFast
+  MODEL_NAME: Fast
   LOSS_FUNC: cross_entropy
   DROPOUT_RATE: 0.5
 TEST:
-  ENABLE: True
-  DATASET: kinetics
-  BATCH_SIZE: 64
-  CHECKPOINT_TYPE: caffe2
-  CHECKPOINT_FILE_PATH: models/ar_models/checkpoints/SLOWFAST_8x8_R50.pkl
+  ENABLE: False
+  DATASET: ssv2
+  BATCH_SIZE: 8
 DATA_LOADER:
-  NUM_WORKERS: 8
+  NUM_WORKERS: 0
   PIN_MEMORY: True
 NUM_GPUS: 1
 NUM_SHARDS: 1
 RNG_SEED: 0
-OUTPUT_DIR: .
+LOG_PERIOD: 10
+OUTPUT_DIR: checkpoints/debug_f2

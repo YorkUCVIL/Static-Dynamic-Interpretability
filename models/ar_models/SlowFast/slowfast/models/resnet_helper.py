@@ -514,7 +514,7 @@ class ResBlock(nn.Module):
         x.mul_(mask)
         return x
 
-    def forward(self, x):
+    def forward(self, x, no_relu=False):
         f_x = self.branch2(x)
         if self.training and self._drop_connect_rate > 0.0:
             f_x = self._drop_connect(f_x, self._drop_connect_rate)
@@ -522,7 +522,8 @@ class ResBlock(nn.Module):
             x = self.branch1_bn(self.branch1(x)) + f_x
         else:
             x = x + f_x
-        x = self.relu(x)
+        if not no_relu:
+            x = self.relu(x)
         return x
 
 
@@ -557,6 +558,7 @@ class ResStage(nn.Module):
         inplace_relu=True,
         norm_module=nn.BatchNorm3d,
         drop_connect_rate=0.0,
+        fast_only=False
     ):
         """
         The `__init__` method of any subclass should also contain these arguments.
@@ -613,6 +615,7 @@ class ResStage(nn.Module):
         self.num_blocks = num_blocks
         self.nonlocal_group = nonlocal_group
         self._drop_connect_rate = drop_connect_rate
+        self.fast_only = fast_only
         self.temp_kernel_sizes = [
             (temp_kernel_sizes[i] * num_blocks[i])[: num_block_temp_kernel[i]]
             + [1] * (num_blocks[i] - num_block_temp_kernel[i])
@@ -650,6 +653,7 @@ class ResStage(nn.Module):
             instantiation,
             dilation,
             norm_module,
+            fast_only
         )
 
     def _construct(
@@ -667,6 +671,7 @@ class ResStage(nn.Module):
         instantiation,
         dilation,
         norm_module,
+        fast_only=False
     ):
         for pathway in range(self.num_pathways):
             for i in range(self.num_blocks[pathway]):
@@ -688,7 +693,10 @@ class ResStage(nn.Module):
                     block_idx=i,
                     drop_connect_rate=self._drop_connect_rate,
                 )
-                self.add_module("pathway{}_res{}".format(pathway, i), res_block)
+                if fast_only:
+                    self.add_module("pathway{}_res{}".format(pathway + 1, i), res_block)
+                else:
+                    self.add_module("pathway{}_res{}".format(pathway, i), res_block)
                 if i in nonlocal_inds[pathway]:
                     nln = Nonlocal(
                         dim_out[pathway],
@@ -697,18 +705,24 @@ class ResStage(nn.Module):
                         instantiation=instantiation,
                         norm_module=norm_module,
                     )
-                    self.add_module(
-                        "pathway{}_nonlocal{}".format(pathway, i), nln
+                    if fast_only:
+                        self.add_module(
+                            "pathway{}_nonlocal{}".format(pathway+1, i), nln)
+                    else:
+                        self.add_module(
+                            "pathway{}_nonlocal{}".format(pathway, i), nln
                     )
 
-    def forward(self, inputs):
+    def forward(self, inputs, no_relu=False):
         output = []
         for pathway in range(self.num_pathways):
             x = inputs[pathway]
-            # x = inputs
             for i in range(self.num_blocks[pathway]):
-                m = getattr(self, "pathway{}_res{}".format(pathway, i))
-                x = m(x)
+                if self.fast_only:
+                    m = getattr(self, "pathway{}_res{}".format(pathway + 1, i))
+                else:
+                    m = getattr(self, "pathway{}_res{}".format(pathway, i))
+                x = m(x, no_relu)
                 if hasattr(self, "pathway{}_nonlocal{}".format(pathway, i)):
                     nln = getattr(
                         self, "pathway{}_nonlocal{}".format(pathway, i)

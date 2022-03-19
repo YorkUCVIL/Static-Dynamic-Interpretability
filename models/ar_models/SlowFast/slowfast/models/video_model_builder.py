@@ -14,7 +14,7 @@ from . import head_helper, resnet_helper, stem_helper
 from .build import MODEL_REGISTRY
 
 # Number of blocks for different stages given the model depth.
-_MODEL_STAGE_DEPTH = {50: (3, 4, 6, 3), 101: (3, 4, 23, 3)}
+_MODEL_STAGE_DEPTH = {18: (2, 2, 2, 2), 50: (3, 4, 6, 3), 101: (3, 4, 23, 3)}
 
 # Basis of temporal kernel sizes for each of the stage.
 _TEMPORAL_KERNEL_BASIS = {
@@ -490,6 +490,339 @@ class SlowFast(nn.Module):
 
 
 @MODEL_REGISTRY.register()
+class Fast(nn.Module):
+    """
+    SlowFast model builder for SlowFast network.
+
+    Christoph Feichtenhofer, Haoqi Fan, Jitendra Malik, and Kaiming He.
+    "SlowFast networks for video recognition."
+    https://arxiv.org/pdf/1812.03982.pdf
+    """
+
+    def __init__(self, cfg):
+        """
+        The `__init__` method of any subclass should also contain these
+            arguments.
+        Args:
+            cfg (CfgNode): model building configs, details are in the
+                comments of the config file.
+        """
+        super(Fast, self).__init__()
+        self.norm_module = get_norm(cfg)
+        self.enable_detection = cfg.DETECTION.ENABLE
+        self.num_pathways = 1
+        if cfg.MODEL.MODEL_NAME == 'Fast':
+            self.fast_only = True
+        # self.ave_pool = nn.AvgPool3d((4, 7, 7))
+        self.ave_pool = nn.AvgPool3d((8, 7, 7))
+        self._construct_network(cfg)
+        init_helper.init_weights(
+            self, cfg.MODEL.FC_INIT_STD, cfg.RESNET.ZERO_INIT_FINAL_BN
+        )
+
+    def _construct_network(self, cfg):
+        """
+        Builds a SlowFast model. The first pathway is the Slow pathway and the
+            second pathway is the Fast pathway.
+        Args:
+            cfg (CfgNode): model building configs, details are in the
+                comments of the config file.
+        """
+        assert cfg.MODEL.ARCH in _POOL1.keys()
+        pool_size = _POOL1[cfg.MODEL.ARCH]
+        assert len({len([pool_size[1]]), self.num_pathways}) == 1
+        assert cfg.RESNET.DEPTH in _MODEL_STAGE_DEPTH.keys()
+
+        (d2, d3, d4, d5) = _MODEL_STAGE_DEPTH[cfg.RESNET.DEPTH]
+
+        num_groups = cfg.RESNET.NUM_GROUPS
+        width_per_group = cfg.RESNET.WIDTH_PER_GROUP
+        dim_inner = num_groups * width_per_group
+        out_dim_ratio = (
+            cfg.SLOWFAST.BETA_INV // cfg.SLOWFAST.FUSION_CONV_CHANNEL_RATIO
+        )
+        # out_dim_ratio = 4 ^^
+
+        temp_kernel = _TEMPORAL_KERNEL_BASIS[cfg.MODEL.ARCH]
+
+        self.s1 = stem_helper.VideoModelStem(
+            dim_in=[cfg.DATA.INPUT_CHANNEL_NUM[1]], # 3
+            dim_out=[[width_per_group, width_per_group // cfg.SLOWFAST.BETA_INV][1]], # 8
+            kernel=[[temp_kernel[0][0] + [7, 7], temp_kernel[0][1] + [7, 7]][1]], # 5,7,7
+            stride=[[1, 2, 2]],
+            padding=[[temp_kernel[0][1][0] // 2, 3, 3],],
+            norm_module=self.norm_module,
+            fast_only=True
+        )
+
+        self.s2 = resnet_helper.ResStage(
+            dim_in=[[
+                width_per_group + width_per_group // out_dim_ratio,
+                width_per_group // cfg.SLOWFAST.BETA_INV,
+            ][1]],
+            dim_out=[[
+                width_per_group * 4,
+                width_per_group * 4 // cfg.SLOWFAST.BETA_INV,
+            ][1]],
+            dim_inner=[[dim_inner, dim_inner // cfg.SLOWFAST.BETA_INV][1]],
+            temp_kernel_sizes=[temp_kernel[1][1]],
+            stride=[cfg.RESNET.SPATIAL_STRIDES[0][1]],
+            num_blocks=[d2],
+            num_groups=[num_groups],
+            num_block_temp_kernel=[cfg.RESNET.NUM_BLOCK_TEMP_KERNEL[0][1]],
+            nonlocal_inds=[cfg.NONLOCAL.LOCATION[0][1]],
+            nonlocal_group=[cfg.NONLOCAL.GROUP[0][1]],
+            nonlocal_pool=[cfg.NONLOCAL.POOL[0][1]],
+            instantiation=cfg.NONLOCAL.INSTANTIATION,
+            trans_func_name=cfg.RESNET.TRANS_FUNC,
+            dilation=[cfg.RESNET.SPATIAL_DILATIONS[0][1]],
+            norm_module=self.norm_module,
+            fast_only=True
+        )
+
+        # for pathway in range(self.num_pathways):
+        pool = nn.MaxPool3d(
+            kernel_size=pool_size[1],
+            stride=pool_size[1],
+            padding=[0, 0, 0],
+        )
+        self.add_module("pathway{}_pool".format(1), pool)
+
+        self.s3 = resnet_helper.ResStage(
+            dim_in=[[
+                width_per_group * 4 + width_per_group * 4 // out_dim_ratio,
+                width_per_group * 4 // cfg.SLOWFAST.BETA_INV,
+            ][1]],
+            dim_out=[[
+                width_per_group * 8,
+                width_per_group * 8 // cfg.SLOWFAST.BETA_INV,
+            ][1]],
+            dim_inner=[[dim_inner * 2, dim_inner * 2 // cfg.SLOWFAST.BETA_INV][1]],
+            temp_kernel_sizes=[temp_kernel[2][1]],
+            stride=[cfg.RESNET.SPATIAL_STRIDES[1][1]],
+            num_blocks=[d3],
+            num_groups=[num_groups],
+            num_block_temp_kernel=[cfg.RESNET.NUM_BLOCK_TEMP_KERNEL[1][1]],
+            nonlocal_inds=[cfg.NONLOCAL.LOCATION[1][1]],
+            nonlocal_group=[cfg.NONLOCAL.GROUP[1][1]],
+            nonlocal_pool=[cfg.NONLOCAL.POOL[1][1]],
+            instantiation=cfg.NONLOCAL.INSTANTIATION,
+            trans_func_name=cfg.RESNET.TRANS_FUNC,
+            dilation=[cfg.RESNET.SPATIAL_DILATIONS[1][1]],
+            norm_module=self.norm_module,
+            fast_only=True
+        )
+        self.s4 = resnet_helper.ResStage(
+            dim_in=[[
+                width_per_group * 8 + width_per_group * 8 // out_dim_ratio,
+                width_per_group * 8 // cfg.SLOWFAST.BETA_INV,
+            ][1]],
+            dim_out=[[
+                width_per_group * 16,
+                width_per_group * 16 // cfg.SLOWFAST.BETA_INV,
+            ][1]],
+            dim_inner=[[dim_inner * 4, dim_inner * 4 // cfg.SLOWFAST.BETA_INV][1]],
+            temp_kernel_sizes=[temp_kernel[3][1]],
+            stride=[cfg.RESNET.SPATIAL_STRIDES[2][1]],
+            num_blocks=[d4],
+            num_groups=[num_groups],
+            num_block_temp_kernel=[cfg.RESNET.NUM_BLOCK_TEMP_KERNEL[2][1]],
+            nonlocal_inds=[cfg.NONLOCAL.LOCATION[2][1]],
+            nonlocal_group=[cfg.NONLOCAL.GROUP[2][1]],
+            nonlocal_pool=[cfg.NONLOCAL.POOL[2][1]],
+            instantiation=cfg.NONLOCAL.INSTANTIATION,
+            trans_func_name=cfg.RESNET.TRANS_FUNC,
+            dilation=[cfg.RESNET.SPATIAL_DILATIONS[2][1]],
+            norm_module=self.norm_module,
+            fast_only=True
+        )
+        self.s5 = resnet_helper.ResStage(
+            dim_in=[[
+                width_per_group * 16 + width_per_group * 16 // out_dim_ratio,
+                width_per_group * 16 // cfg.SLOWFAST.BETA_INV,
+            ][1]],
+            dim_out=[[
+                width_per_group * 32,
+                width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
+            ][1]],
+            dim_inner=[[dim_inner * 8, dim_inner * 8 // cfg.SLOWFAST.BETA_INV][1]],
+            temp_kernel_sizes=[temp_kernel[4][1]],
+            stride=[cfg.RESNET.SPATIAL_STRIDES[3][1]],
+            num_blocks=[d5],
+            num_groups=[num_groups],
+            num_block_temp_kernel=[cfg.RESNET.NUM_BLOCK_TEMP_KERNEL[3][1]],
+            nonlocal_inds=[cfg.NONLOCAL.LOCATION[3][1]],
+            nonlocal_group=[cfg.NONLOCAL.GROUP[3][1]],
+            nonlocal_pool=[cfg.NONLOCAL.POOL[3][1]],
+            instantiation=cfg.NONLOCAL.INSTANTIATION,
+            trans_func_name=cfg.RESNET.TRANS_FUNC,
+            dilation=[cfg.RESNET.SPATIAL_DILATIONS[3][1]],
+            norm_module=self.norm_module,
+            fast_only=True
+        )
+
+        if cfg.DETECTION.ENABLE:
+            self.head = head_helper.ResNetRoIHead(
+                dim_in=[
+                    width_per_group * 32,
+                    width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
+                ],
+                num_classes=cfg.MODEL.NUM_CLASSES,
+                pool_size=[
+                    [
+                        cfg.DATA.NUM_FRAMES
+                        // cfg.SLOWFAST.ALPHA
+                        // pool_size[0][0],
+                        1,
+                        1,
+                    ],
+                    [cfg.DATA.NUM_FRAMES // pool_size[1][0], 1, 1],
+                ],
+                resolution=[[cfg.DETECTION.ROI_XFORM_RESOLUTION] * 2] * 2,
+                scale_factor=[cfg.DETECTION.SPATIAL_SCALE_FACTOR] * 2,
+                dropout_rate=cfg.MODEL.DROPOUT_RATE,
+                act_func=cfg.MODEL.HEAD_ACT,
+                aligned=cfg.DETECTION.ALIGNED,
+            )
+        else:
+            self.head = head_helper.ResNetBasicHead(
+                dim_in=[[
+                    width_per_group * 32,
+                    width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
+                ][1]],
+                num_classes=cfg.MODEL.NUM_CLASSES,
+                pool_size=[None, None]
+                if cfg.MULTIGRID.SHORT_CYCLE
+                else [[
+                    [
+                        cfg.DATA.NUM_FRAMES
+                        // cfg.SLOWFAST.ALPHA
+                        // pool_size[0][0],
+                        cfg.DATA.TRAIN_CROP_SIZE // 32 // pool_size[0][1],
+                        cfg.DATA.TRAIN_CROP_SIZE // 32 // pool_size[0][2],
+                    ],
+                    [
+                        cfg.DATA.NUM_FRAMES // pool_size[1][0],
+                        cfg.DATA.TRAIN_CROP_SIZE // 32 // pool_size[1][1],
+                        cfg.DATA.TRAIN_CROP_SIZE // 32 // pool_size[1][2],
+                    ],
+                ][1]],  # None for AdaptiveAvgPool3d((1, 1, 1))
+                dropout_rate=cfg.MODEL.DROPOUT_RATE,
+                act_func=cfg.MODEL.HEAD_ACT,
+                fast_only=True
+            )
+
+    def forward(self, x, bboxes=None, cls=False, stage=None):
+        # shape = b*c*t*h*w
+        # FAST
+        x = self.s1(x)
+        if stage == 1:
+            x = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+            x = x.view(x.size(0), -1)
+            return x
+        x = self.s2(x)
+        if stage == 2:
+            x = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+            x = x.view(x.size(0), -1)
+            return x
+        for pathway in range(self.num_pathways):
+            if self.fast_only:
+                pool = getattr(self, "pathway{}_pool".format(pathway + 1))
+            else:
+                pool = getattr(self, "pathway{}_pool".format(pathway))
+            x[pathway] = pool(x[pathway])
+        x = self.s3(x)
+        if stage == 3:
+            x = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+            x = x.view(x.size(0), -1)
+            return x
+        x = self.s4(x)
+        if stage == 4:
+            x = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+            x = x.view(x.size(0), -1)
+            return x
+        x = self.s5(x, no_relu=False)
+        if cls:
+            return self.head(x)
+        if stage == 5:
+            x = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+            x = x.view(x.size(0), -1)
+            return x
+        if self.enable_detection:
+            x = self.head(x, bboxes)
+        else:
+            if cls:
+                return self.head(x)
+            else:
+                x = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+                x = x.view(x.size(0), -1)
+        return x
+    # def forward(self, x, bboxes=None, feat_pred=False, feat=False, stg_feat=None, fast=True, mask=None, mask_stage=None, stage=False):
+    #     x = self.s1(x)
+    #     if stg_feat == 1:
+    #         if fast:
+    #             x_feat = nn.AvgPool3d((x[1].shape[2], x[1].shape[3], x[1].shape[4]))(x[1])
+    #         else:
+    #             x_feat = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+    #         x_feat = x_feat.view(x_feat.size(0), -1)
+    #         if feat:
+    #             return x_feat
+    #     x = self.s2(x)
+    #     for pathway in range(self.num_pathways):
+    #         if self.fast_only:
+    #             pool = getattr(self, "pathway{}_pool".format(pathway+1))
+    #         else:
+    #             pool = getattr(self, "pathway{}_pool".format(pathway))
+    #         x[pathway] = pool(x[pathway])
+    #     if stg_feat == 2:
+    #         if fast:
+    #             x_feat = nn.AvgPool3d((x[1].shape[2], x[1].shape[3], x[1].shape[4]))(x[1])
+    #         else:
+    #             x_feat = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+    #         x_feat = x_feat.view(x_feat.size(0), -1)
+    #         if feat:
+    #             return x_feat
+    #     x = self.s3(x)
+    #     if stg_feat == 3:
+    #         if fast:
+    #             x_feat = nn.AvgPool3d((x[1].shape[2], x[1].shape[3], x[1].shape[4]))(x[1])
+    #         else:
+    #             x_feat = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+    #         x_feat = x_feat.view(x_feat.size(0), -1)
+    #         if feat:
+    #             return x_feat
+    #     x = self.s4(x)
+    #     if stg_feat == 4:
+    #         if fast:
+    #             x_feat = nn.AvgPool3d((x[1].shape[2], x[1].shape[3], x[1].shape[4]))(x[1])
+    #         else:
+    #             x_feat = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
+    #         x_feat = x_feat.view(x_feat.size(0), -1)
+    #         if feat:
+    #             return x_feat
+    #     x = self.s5(x)
+    #     if self.enable_detection:
+    #         x = self.head(x, bboxes)
+    #     elif feat:
+    #         if fast:
+    #             x_feat = self.ave_pool(x[1]).view(-1, x[1].shape[1])
+    #         else:
+    #             x_feat = self.ave_pool(x[0]).view(-1, x[0].shape[1])
+    #         return x_feat
+    #     elif feat_pred:
+    #         pred = self.head(x)
+    #         if not stg_feat or stg_feat == 5:
+    #             if fast:
+    #                 x_feat = self.ave_pool(x[1]).view(-1, x[1].shape[1])
+    #             else:
+    #                 x_feat = self.ave_pool(x[0]).view(-1, x[0].shape[1])
+    #         return pred, x_feat
+    #     else:
+    #         x = self.head(x, mask=mask, mask_stage=mask_stage)
+    #     return x
+
+
+@MODEL_REGISTRY.register()
 class ResNet(nn.Module):
     """
     ResNet model builder. It builds a ResNet like network backbone without
@@ -696,7 +1029,7 @@ class ResNet(nn.Module):
             x = nn.AvgPool3d((x[0].shape[2], x[0].shape[3], x[0].shape[4]))(x[0])
             x = x.view(x.size(0), -1)
             return x
-        x = self.s5(x)
+        x = self.s5(x, no_relu=False)
         if cls:
             return self.head(x)
         if stage == 5:
