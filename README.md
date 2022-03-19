@@ -79,7 +79,7 @@ and the model out of the models listed in the get_model() function in the utils.
 
 We obtain all pretrained models from the [SlowFast](https://github.com/facebookresearch/SlowFast) and
 [TimeSformer](https://github.com/facebookresearch/TimeSformer) model zoos. We train our own models on Diving48
-using the config files from the SlowFast repository. 
+using modified config files from the SlowFast repository. 
 
 Example of calculating the layerwise statistics:
 
