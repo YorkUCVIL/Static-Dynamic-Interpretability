@@ -129,10 +129,7 @@ def load_and_infer_checkpoint(generic_opts, opts, model, ckpt_file, infer_loader
             print('Loaded Checkpoint from %s'%ckpt_file)
 
 
-    if generic_opts.iterate_checkpoint:
-        ckpt_iteration = ckpt_file.split('/')[-1].split('_')[-1].split('.')[0]
-    else:
-        ckpt_iteration = 'final'
+    ckpt_iteration = 'final'
 
     model.to(device)
 
@@ -215,14 +212,8 @@ def main():
                                   fuse_early=opts.fuse_early, pretrain_motionstream=opts.pretrain_motionstream,
                                   fuse_bnorm=opts.fuse_bnorm, extra_args=opts.extra_args)
 
-    if not generic_opts.iterate_checkpoint:
-        load_and_infer_checkpoint(generic_opts, opts, model, generic_opts.checkpoint,
-                                  infer_loader, device)
-    else:
-        for ckpt_file in sorted(os.listdir(generic_opts.checkpoint)):
-            ckpt_file = os.path.join(generic_opts.checkpoint, ckpt_file)
-            load_and_infer_checkpoint(generic_opts, opts, model, ckpt_file,
-                                      infer_loader, device)
+    load_and_infer_checkpoint(generic_opts, opts, model, generic_opts.checkpoint,
+                              infer_loader, device)
 
 if __name__ == '__main__':
     main()
