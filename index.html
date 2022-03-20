@@ -18,8 +18,17 @@
 
 		<h1 class='project_section'>Method Overview</h1>
 		<img src='img/main_method.png'>
+		We quantify the amount of static and dynamic information contained in spatio-temporal models through an estimation of mutual information between static and dynamic pairs. For action recognition models, the static pairs consist of the same video with shuffled frames. For the dynamic pair, we use the same video with two different styles. For video object segmentation (we explore two-stream models in this work), we use flow-jitter to perturb the dynamic information and stylization to perturb the static information.
 
-		<h1 class='project_video'>Demo</h1>
+
+		<h1 class='project_section'>Results</h1>
+		<img src='img/ar_result.png'>
+		The first domain we study with our proposed approach is action recognition. A main finding in our work is that Diving48 is not as biased towards dynamics as previously thought. Interestingly, something-something-v2 guides the model to learn significantly more dynamic information than either Diving48 or Kinetics. Additionally, Diving48 results in `residual' neurons: neurons which encode neither static nor dynamic information.
+
+		<img src='img/vos_result.png'>
+		Our method has shown generality to other spatiotemporal tasks such as video object segmentation (VOS). Our findings indicate that the studied VOS models are generally static biased. However, two stream architectures with cross connection result in a better balance between static and dynamic units in various fusion layers. Originally, motion-to-appearance and appearance-to-motion cross connections in RTNet showed few dynamic units. However, we were able to relate this to their pretraining regime on DUTS. Additionally, we release a model with reciprocal cross connections (similar to RTNet) with gated fusion (similar to MATNet) which does not undergo DUTS pretraining and find that it is able to better capture dynamics and achieves superior results on Camouflaged Moving Objects (MoCA) segmentation. Finally, we show that well known datasets used for pretraining VOS models are largely static biased and find that TAOVOS may act as a better dataset to encourage the learning of dynamics.
+
+		<h1 class='project_video'>Demo (Supplementary Video)</h1>
 			<center>
 				<iframe width="900" height="500" src="https://www.youtube.com/embed/H9bAqq-6-tg">
 				</iframe>
@@ -32,7 +41,7 @@
 				<p>Matt Kowal</p>
 			</a>
 			<a class='project_author' href='http://webdocs.cs.ualberta.ca/~mennatul/'>
-				<img class='author_icon' src='img/menna2.jpeg'>
+				<img class='author_icon' src='img/menna.png'>
 				<p>Mennatullah Siam</p>
 			</a>
 			<a class='project_author' href='https://www.cs.ryerson.ca/~amirul/'>
