@@ -82,8 +82,6 @@ def infer(model, loader, device, stages, variant, sampling_method, opts, ckpt_it
         os.makedirs('dim_outputs/vos_models/idv_scores/%s'%model_name)
     if not os.path.exists('dim_outputs/vos_models/joint_encoding/%s'%model_name):
         os.makedirs('dim_outputs/vos_models/joint_encoding/%s'%model_name)
-    if not os.path.exists('dim_outputs/vos_models/stats_tables_newformat'):
-        os.makedirs('dim_outputs/vos_models/stats_tables_newformat')
 
     for stage in stages:
         current_output_dict = {'example1':[], 'example2':[]}
@@ -103,8 +101,8 @@ def infer(model, loader, device, stages, variant, sampling_method, opts, ckpt_it
         with open('dim_outputs/vos_models/idv_scores/%s/%s.pkl'%(model_name, stage), 'wb') as f:
             pickle.dump(idv_scores, f)
 
-        with open('dim_outputs/vos_models/final/%s/%s_%s_%03d_%s.txt'%(\
-                   model_name, model_name, ckpt_iteration, opts.random_seed, opts.pretrain_type), 'a') as f:
+        with open('dim_outputs/vos_models/final/%s/%s_%s_%03d.txt'%(\
+                   model_name, model_name, ckpt_iteration, opts.random_seed), 'a') as f:
             f.write('Stage: ' + stage + ' , Dimensions: ' + \
                     str(dims) + ' ' + str(dims_percent) + '\n')
             print('Stage: ' + stage + ' , Dimensions: ' + \
@@ -137,8 +135,7 @@ def load_and_infer_checkpoint(generic_opts, opts, model, ckpt_file, infer_loader
                  3: 'layer3,app_stream', 4: 'layer4,app_stream', 5: 'conv1,mot_stream',
                  6: 'layer1,mot_stream', 7: 'layer2,mot_stream', 8:'layer3,mot_stream',
                  9: 'layer4,mot_stream', 10: 'layer1,sensor_fusion', 11: 'layer2,sensor_fusion',
-                 12: 'layer3,sensor_fusion', 13: 'layer4,sensor_fusion', 14: 'conv1,sensor_fusion',
-                 15: 'layerf,sensor_fusion'}
+                 12: 'layer3,sensor_fusion', 13: 'layer4,sensor_fusion', 14: 'conv1,sensor_fusion'}
 
     if opts.model == "sam":
         # Include conv1 sensor fusion
