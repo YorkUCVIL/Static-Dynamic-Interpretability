@@ -112,7 +112,7 @@ bash run_main_vos.sh
 
 * Compute layerwise statistics
 ```
-python scripts/mean_var_analysis.py dim_outputs/vos_models/final/MODEL_NAME
+python misc/mean_var_analysis.py dim_outputs/vos_models/final/MODEL_NAME
 ```
 
 * Compute unitwise statistics

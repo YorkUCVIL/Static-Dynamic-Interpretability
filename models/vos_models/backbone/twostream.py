@@ -26,7 +26,7 @@ class TwoStream(nn.Module):
         # Pretrain app_stream
         if pretrained_backbone:
             state_dict = torch.load(
-                'checkpoints/best_deeplabv3plus_resnet101_voc_os16.pth')
+                'checkpoints_3models_staticdynamic_cvpr22/best_deeplabv3plus_resnet101_voc_os16.pth')
 
             app_stream_state_dict = self.app_stream.state_dict()
 

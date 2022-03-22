@@ -10,11 +10,11 @@ do
         echo $seed $joint
     fi
 
-    # RTNet, bs=10
-    python main_vos.py --cfg_file configs/rtnet_davis.json --dataset StylizedDAVIS --checkpoint checkpoints_3models_staticdynamic_cvpr22/model_RX50.pth --batch_size 5 --random_seed $seed --num_workers 2 --joint_encoding $joint
-    
-    # MATNet, bs=30
-    python main_vos.py --dataset StylizedDAVIS --checkpoint checkpoints_3models_staticdynamic_cvpr22/checkpoints_matnet/ --cfg_file configs/matnet_davis.json --random_seed $seed --batch_size 10 --trained_on davis --joint_encoding $joint
+#    # RTNet, bs=10
+#    python main_vos.py --cfg_file configs/rtnet_davis.json --dataset StylizedDAVIS --checkpoint checkpoints_3models_staticdynamic_cvpr22/model_RX50.pth --batch_size 5 --random_seed $seed --num_workers 2 --joint_encoding $joint
+#    
+#    # MATNet, bs=30
+#    python main_vos.py --dataset StylizedDAVIS --checkpoint checkpoints_3models_staticdynamic_cvpr22/checkpoints_matnet/ --cfg_file configs/matnet_davis.json --random_seed $seed --batch_size 10 --trained_on davis --joint_encoding $joint
 
     # FusionSeg DAVIS, bs=64
     python main_vos.py --dataset StylizedDAVIS --checkpoint checkpoints_3models_staticdynamic_cvpr22/checkpoints_fseg/latest_twostream_deeplabv3plus_resnet101_davis_os16.pth --cfg_file configs/twostreamv3plus_davis.json --random_seed $seed --batch_size 32 --joint_encoding $joint
