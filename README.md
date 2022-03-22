@@ -101,7 +101,7 @@ python main.py --joint_encoding True --stylized_data_dir /path/to/stylized_datas
 
 * Download Stylized DAVIS from [here](https://www.dropbox.com/s/we2c3m5d1f6qyol/Stylized_DAVIS.zip?dl=0)
 
-* Download Weights for three VOS models from [here](https://www.dropbox.com/s/jhc3z21b0cbhb87/checkpoints_3models_staticdynamic_cvpr22.zip?dl=0)
+* Download Weights for three VOS models from [here](https://www.dropbox.com/s/20xfo150xbc8wde/checkpoints_3models_staticdynamic_cvpr22_final.zip?dl=0)
 
 * Run following command
 ```
