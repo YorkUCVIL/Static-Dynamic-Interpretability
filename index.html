@@ -26,8 +26,7 @@
 		The first domain we study with our proposed approach is action recognition. A main finding in our work is that Diving48 is not as biased towards dynamics as previously thought. Interestingly, something-something-v2 guides the model to learn significantly more dynamic information than either Diving48 or Kinetics. Additionally, Diving48 results in `residual' neurons: neurons which encode neither static nor dynamic information.
 
 		<img src='img/vos_result.png'>
-		Our method has shown generality to other spatiotemporal tasks such as video object segmentation (VOS). Our findings indicate that the studied VOS models are generally static biased. However, two stream architectures with cross connection result in a better balance between static and dynamic units in various fusion layers. Originally, motion-to-appearance and appearance-to-motion cross connections in RTNet showed few dynamic units. However, we were able to relate this to their pretraining regime on DUTS. Additionally, we release a model with reciprocal cross connections (similar to RTNet) with gated fusion (similar to MATNet) which does not undergo DUTS pretraining and find that it is able to better capture dynamics and achieves superior results on Camouflaged Moving Objects (MoCA) segmentation. Finally, we show that well known datasets used for pretraining VOS models are largely static biased and find that TAOVOS may act as a better dataset to encourage the learning of dynamics.
-
+		Our method has shown generality to other tasks such as video object segmentation (VOS). We found that 2-stream architectures with cross connections result in a better balance between static and dynamic. Originally, reciprocal (motion-to-appearance and appearance-to-motion) cross connections in RTNet showed few dynamic units. However, we showed that a model with reciprocal cross connections that does not undergo DUTS pretraining results in more dynamics. Finally, we show well known datasets used for training VOS models are static biased and find that TAOVOS may act as a better dataset to encourage the learning of dynamics.
 		<h1 class='project_video'>Demo (Supplementary Video)</h1>
 			<center>
 				<iframe width="900" height="500" src="https://www.youtube.com/embed/H9bAqq-6-tg">
@@ -41,7 +40,7 @@
 				<p>Matt Kowal</p>
 			</a>
 			<a class='project_author' href='http://webdocs.cs.ualberta.ca/~mennatul/'>
-				<img class='author_icon' src='img/menna.png'>
+				<img class='author_icon' src='img/menna3.jpg'>
 				<p>Mennatullah Siam</p>
 			</a>
 			<a class='project_author' href='https://www.cs.ryerson.ca/~amirul/'>
@@ -50,7 +49,7 @@
 			</a>
 			<a class='project_author' href='https://socs.uoguelph.ca/~brucen/'>
 				<img class='author_icon' src='img/Neil.png'>
-				<p>Neil Bruce</p>
+				<p>Neil D.B. Bruce</p>
 			</a>
 			<a class='project_author' href='http://www.cse.yorku.ca/~wildes/'>
 				<img class='author_icon' src='img/rick.png'>
