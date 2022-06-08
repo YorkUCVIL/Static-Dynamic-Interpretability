@@ -1,7 +1,7 @@
 # A Deeper Dive Into What Deep Spatiotemporal Networks Encode: Quantifying Static vs. Dynamic Information
 Official Implementation of our CVPR 2022 Paper.
 
-[Paper](https://arxiv.org/abs/2206.02846), [project page](https://yorkucvil.github.io/Static-Dynamic-Interpretability/), [demo](https://youtu.be/H9bAqq-6-tg)
+[Paper](https://arxiv.org/abs/2206.02846), [project page](https://yorkucvil.github.io/Static-Dynamic-Interpretability/), [presentation](https://youtu.be/3EWinAPTBkE)
 
 
 <div align="center">
